@@ -1,9 +1,8 @@
 import os
 import sys
 import glob
-
-
-def get_expected_files(stage, iteration=1):
+    
+def check_stage_output(settings, nbatches, stage, iteration, workdir, any_exist=False):
     unique_files = []
     if stage==1 and iteration==1:
         expected_files = [
@@ -20,23 +19,23 @@ def get_expected_files(stage, iteration=1):
             f"pwg-xg{iteration}-xgrid-btl-{{jobid:04d}}.top",
             f"pwg-xg{iteration}-xgrid-rm-{{jobid:04d}}.top"
             ]
-    elif stage==2: 
-        expected_files = [
+    elif stage==2:
+        expected_files=[
             "pwg-st2-xgrid-btl-{jobid:04d}.top",
-            "pwg-st2-xgrid-rm-{jobid:04d}.top",
             "pwggrid-btl-{jobid:04d}.dat",
-            "pwggrid-rm-{jobid:04d}.dat",
             "pwgbtlupb-{jobid:04d}.dat",
+            "pwg-st2-xgrid-rm-{jobid:04d}.top",
             "pwgrmupb-{jobid:04d}.dat",
-            "pwgcounters-st2-{jobid:04d}.dat",
-            "pwg-{jobid:04d}-st2-stat.dat"
+            "pwggrid-rm-{jobid:04d}.dat",
+            "pwg-{jobid:04d}-st2-stat.dat",
+            "pwgcounters-st2-{jobid:04d}.dat"
             ]
     elif stage==3:
-        expected_files = [
+        expected_files=[
             "pwgubound-{jobid:04d}.dat",
-            "pwgcounters-st3-{jobid:04d}.dat",
             "pwg-{jobid:04d}-st3-stat.dat",
-        ]
+            "pwgcounters-st3-{jobid:04d}.dat"
+            ]
         unique_files = [
             "pwgfullgrid-btl-{jobid:04d}.dat",
             "pwgfullgrid-rm-{jobid:04d}.dat",
@@ -45,21 +44,16 @@ def get_expected_files(stage, iteration=1):
             "mint_upb_rmupb.top",
             "pwghistnorms.top",
             "pwgborngrid-stat.dat"
-        ]
+            ]
     elif stage==4:
         expected_files = [
             "pwgevents-{jobid:04d}.lhe",
             "pwg-{jobid:04d}-st4-stat.dat",
             "pwgcounters-st4-{jobid:04d}.dat",
-            #"pwgboundviolations-{jobid:04d}.dat",
+            #"pwgboundviolations-{jobid:04d}.dat"
             ]
-    elif stage==5:
-        expected_files = []
-        # TODO
-    return expected_files, unique_files
-    
-def check_stage_output(settings, nbatches, stage, iteration, workdir, any_exist=False):
-    expected_files, unique_files = get_expected_files(stage, iteration)
+    else:
+        expected_files=[]
     
     missing_ids = []
     for n in range(nbatches):
@@ -98,4 +92,3 @@ def check_stage_output(settings, nbatches, stage, iteration, workdir, any_exist=
         return False, []
     else:
         return True, []
-
