@@ -35,13 +35,12 @@ base=$PWD
 ```
 All commands are given relative to this `$base`
 
-Install `yaml` package for python3:
+Install `yaml` package for python3 if not available:
 ```
 pip3 install --user pyyaml
 ```
 
-### Set up a CMSSW_10_2_14 environment 
-This CMSSW version is only available for CentOs 7, so the installation needs to be done inside the Singularity environment
+### Set up a CMSSW_14_0_12 environment 
 
 First, launch the singularity environment by using the command:
 ```
@@ -50,38 +49,35 @@ cmssw-el7
 Then, inside the singularity environment run the following commands:
 ```
 cd $base
-scram project CMSSW_10_2_14
-cd $base/CMSSW_10_2_14/src
+scram project CMSSW_14_0_12
+cd $base/CMSSW_14_0_12/src
 cmsenv
 cd $base
 ```
 
-### Install POWHEG-BOX-RES
+### Install POWHEG-BOX-RES and the ttbb process
+
+We will use a pre-packaged version which contains the correct versions for the required packages
 ```
 cd $base
-svn checkout --revision 3604 --username anonymous --password anonymous svn://powhegbox.mib.infn.it/trunk/POWHEG-BOX-RES
+cp /afs/cern.ch/work/v/vanderli/public/ttbb-lhe-inputs/Run3_powheg/powhegboxRES_rev4041_date20231121.tar.gz .
+tar -xf powhegboxRES_rev4041_date20231121.tar.gz
 ```
-We are using revision 3604, which is the stable release version. More recent revisions have not been tested yet.
 
-Get the code for the ttbb process:
+Unpack also the ttbb process:
 ```
-cd $base/POWHEG-BOX-RES
-git clone ssh://git@gitlab.cern.ch:7999/tjezo/powheg-box-res_ttbb.git ttbb
+cd $base/POWHEG-BOX/
+tar -xf ttbb
 ```
-Enter the ttbb directory and check out the appropriate commit that fits to r3604 of the POWHEG-BOX-RES code:
-```
-cd $base/POWHEG-BOX-RES/ttbb
-git checkout 128aefb6061b72714d34e5f1d4798967f76f9585
-```
+
 Then compile the fortran code of POWHEG:
-
-(NOTE:The compilation must be done with the CMSSW loaded, so the Singularity environment is again needed.)  
+(NOTE: The compilation must be done with the CMSSW loaded, so the Singularity environment is again needed.)  
 ```
 cd $base
 cmssw-el7
-cd $base/CMSSW_10_2_14/src
+cd $base/CMSSW_14_0_12/src
 cmsenv
-cd $base/POWHEG-BOX-RES/ttbb
+cd $base/POWHEG-BOX/ttbb
 make pwhg_main
 make lhef_decay
 ```
@@ -91,7 +87,7 @@ The ttbb POWHEG code is now in principle ready to run. We can now also install t
 ### Install this repository
 ```
 cd $base
-git clone https://github.com/JanvanderLinden/POWHEG-MC-Event-generation.git
+git clone https://github.com/JanvanderLinden/POWHEG-MC-Event-generation.git -b Run3
 ```
 
 For a new production it is recommended to create a new directory now in which you can store everything needed for that production, e.g.
@@ -104,7 +100,7 @@ production=$PWD
 
 In `$base/POWHEG-MC-Event-generation/ttbb_powheg_inputs/` a few `powheg.input` files are stored which can be used as examples for event production. The settings of course can be adjusted based on what configuration is supposed to be generated.
 
-## Setup for postprocess 
+## Setup for postprocess (only needed for post processing of LHE files)
 
 Due to limited amount of storage inside the AFS space, it is suggested to move every job into the EOS space for the postprocessing.
 
@@ -137,6 +133,7 @@ mkdir production_test
 production_eos=$PWD
 ```
 
+
 # Event Generation
 
 ## Setting up a run
@@ -149,7 +146,7 @@ After one stage has finished, the output of the previous stage can be validated.
 **Important: For the following commands, the CMSSW environment is required, so launch Singularity and run everything inside it**
 ```
 cmssw-el7
-cd $base/CMSSW_10_2_14/src
+cd $base/CMSSW_14_0_12/src
 cmsenv
 ```
 
@@ -158,9 +155,9 @@ cmsenv
 Initialize a new run via:
 ```
 cd $production
-python3 ../POWHEG-MC-Event-generation/run.py --init -p ../POWHEG-BOX-RES/ttbb -i ../POWHEG-MC-Event-generation/ttbb_powheg_inputs/powheg.input_nominal -t [NAME] (--mur [MUR])(--muf [MUF])(--mass [MASS])(--pdf [PDF])
+python3 ../POWHEG-MC-Event-generation/run.py --init -p ../POWHEG-BOX/ttbb -i ../POWHEG-MC-Event-generation/ttbb_powheg_inputs/powheg.input_Run3 -t [NAME] (--mur [MUR])(--muf [MUF])(--mass [MASS])(--pdf [PDF])
 ```
-This will create a folder `[NAME]__r[MUR]_f[MUF]_m[MASS]_p[PDF]` in `$production` with the necessary files, as well as a run folder inside the `POWHEG-BOX-RES/ttbb` directory.
+This will create a folder `[NAME]__r[MUR]_f[MUF]_m[MASS]_p[PDF]` in `$production` with the necessary files, as well as a run folder inside the `POWHEG-BOX/ttbb` directory.
 
 Use the help function of `POWHEG-MC-Event-generation/run.py` for more details on the options.
 In summary:
@@ -182,7 +179,7 @@ If these factors are not explicitly set, then, the run will initialize with the 
 **Example:**
 ```
 cd $production
-python3 ../POWHEG-MC-Event-generation/run.py --init -p ../POWHEG-BOX-RES/ttbb -i ../POWHEG-MC-Event-generation/ttbb_powheg_inputs/powheg.input_nominal -t test
+python3 ../POWHEG-MC-Event-generation/run.py --init -p ../POWHEG-BOX/ttbb -i ../POWHEG-MC-Event-generation/ttbb_powheg_inputs/powheg.input_Run3 -t test
 ```
 where this command will create a work directory called `test__r1.0_f1.0_m172.5_p320900` 
 
