@@ -16,10 +16,10 @@ cd $startdir
 echo 'CMSSW initialized'
 
 #add the LHAPDF library path to PATH
-PATH=$PATH:/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/lhapdf/6.2.1-fmblme/bin/
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/lhapdf/6.2.1-fmblme/bin/
+#PATH=$PATH:/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/lhapdf/6.2.1-fmblme/bin/
+#LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/lhapdf/6.2.1-fmblme/bin/
 #add the FASTJET library path to PATH
-PATH=$PATH:/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/fastjet/3.1.0/bin/
+#PATH=$PATH:/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/fastjet/3.1.0/bin/
 echo 'POWHEG initialized'
 
 # running powheg
@@ -157,7 +157,9 @@ def submit_handler(settings, nbatches, stage, iteration, nevt, ttbardecay, workd
     print(f"Generated submit script at {submit_path}")
     
     # submitting
-    print(f"Submitting...")
+    # submit in cmssw-el7 container not possible, has to be done outside
+    print(f"you can submit this outside the singularity container via")
     cmd = f"condor_submit {submit_path}"
-    os.system(cmd)
+    print(cmd)
+    #os.system(cmd)
 

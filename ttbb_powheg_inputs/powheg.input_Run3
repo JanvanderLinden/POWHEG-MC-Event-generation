@@ -1,0 +1,145 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! NLOPS generator for tt~bb~ with massive b quarks
+!   Calculation and the implementation discussed in arXiv:1802.00426
+!   This powheg.input file has been prepared by Tomas Jezo
+!   Note: current recommended settings do not correspond to ones used in arXiv:1802.00426, and in order to reproduce the
+!         results from the paper use
+!            runningscales 1
+!            dynhdampPF 1
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! collider setup
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ebeam1 6800d0     ! energy of beam 1
+ebeam2 6800d0     ! energy of beam 2
+ih1   1           ! hadron 1 (1 for protons, -1 for antiprotons)
+ih2   1           ! hadron 2 (1 for protons, -1 for antiprotons)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Parameters for the generation of spin correlated t tbar decays
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#tdec/wmass 80.4      ! W mass for top decay
+#tdec/wwidth 2.141
+#tdec/bmass 4.8
+#tdec/twidth  1.31    ! 1.33 using PDG LO formula
+#tdec/elbranching 0.108
+#tdec/emass 0.00051
+#tdec/mumass 0.1057
+#tdec/taumass 1.777
+#tdec/dmass   0.100
+#tdec/umass   0.100
+#tdec/smass   0.200
+#tdec/cmass   1.5
+#tdec/sin2cabibbo 0.051
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! integrator and event generator settings 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! values below suitable for a manyseeds run with 128 cores and 3 xgriditerations
+ncall1  40000      ! number of calls for initializing the integration grid
+itmx1    2         ! number of iterations for initializing the integration grid
+ncall2  40000      ! number of calls for computing the integral and finding upper bound
+ncall2rm  80000    ! number of calls for computing the integral and finding upper bound
+itmx2    3         ! number of iterations for computing the integral and finding upper bound
+!! folding has not been tested in case of ttbb, the out-of-the-box negative weight rate is about 5%
+foldcsi   5        ! number of folds on csi integration
+foldy     5        ! number of folds on  y  integration
+foldphi   5        ! number of folds on phi integration
+!! values suitable for a manyseeds run with 128 cores
+nubound 10000      ! number of bbarra calls to setup norm of upper bounding function
+icsimax  1         ! <= 100, number of csi subdivision when computing the upper bounds
+iymax    1         ! <= 100, number of y subdivision when computing the upper bounds
+xupbound 2d0       ! increase upper bound for radiation generation
+storemintupb 1     ! (powheg default 0, ttbb recommended 1) 1 ... store st2 btilde calls to set up upper bounding 
+                   !     envelope; 0 ... do not 
+fastbtlbound 1     ! (powheg default 0, ttbb recommended 1) 1 ... fast calculation of the btilde upper bounding 
+                   !     envelope; 0 ... usual calculation of the btilde upper bounding
+compress_upb 1     ! uses zlib to compress the upper bounding envelope on the fly
+compress_lhe 1     ! uses zlib to compress the .lhe files, compressed .lhe files can be inspected using zcat
+use-old-grid 1     ! (powheg default 0) 1 ... use old grid if file pwggrids.dat is present; 0 ... regenerate, must be 1
+                   !     for a manyseed run  
+use-old-ubound  1  ! (powheg default 0) 1 ... use norm of upper bounding function stored in pwgubound.dat, if present;
+                   !     0 ... regenerate, must be 1 for a manyseed run
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! scale settings
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+runningscales 2    ! (powheg default 0, ttbb recommended 2) renormalization and factorization scale setting
+                   !     0 ... mur=muf=2*mtop; 
+                   !     1 ... mur=[ mT(top) * mT(tbar) * mT(b) * mT(bbar) ]**(1/4), 
+                   !           muf=1/2*[ mT(top) + mT(tbar) + mT(b) + mT(bbar) + mT(gluon) ];
+                   !     2 ... mur=1/2*[ mT(top) * mT(tbar) * mT(b) * mT(bbar) ]**(1/4), 
+                   !           muf=1/4*[ mT(top) + mT(tbar) + mT(b) + mT(bbar) + mT(gluon) ];
+btlscalereal 1     ! (powheg default 0, ttbb recommended 2) let's user chose what kinematics (real or uborn) to use for
+                   !     the scales in real matrix element, by default uborn is used
+btlscalect 1       ! (powheg default 0, ttbb recommended 2) let's user chose what kinematics (real or uborn) to use for
+                   !     the scales in the real counterterm, by default same as for real are used
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! manyseeds settings (for parallel runs)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#manyseeds 1        ! (default 0) 1 ... perform a manyseeds run
+#xgriditeration 1   ! this controls xgriditeration in stage 1 manyseeds runs, modify correspondingly throughout the run
+                   ! either here or via a command line argument as ./pwhg_main xgriditeration=1 
+#parallelstage  1   ! this controls stage in manyseeds run, modify correspondingly throughout the run
+                   ! either here or via a command line argument as ./pwhg_main parallelstage=1 
+maxseeds 1000      ! maximum number of cores to consider
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! tuning the real cross section or damping (see section 5 of [arXiv:1002.2581])
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+withdamp 1          ! (powheg default 0, ttbb recommended 1) activate separation of the real cross section into the 
+                    !     singular and remnant contributions through a damping with h^2/(pt2+h^2)
+#hdamp 172.5        ! fixed value of h, in the expression in the withdamp entry, not recommended for ttbb
+#dynhdamp 1         ! (ttbb default 1) 1 ... calculate the on per event basis as h = sqrt(1/2)*(E[t]+E[t~])*dynhdampPF
+                    !     with E[x]=sqrt(m[x]**2+pt[x]**2), 0 ... use static h with the value set in hdamp
+#dynhdampPF 0.5     ! (ttbb default 0.5) the value of dynhdampPF from above
+#hdampMassTh 5.0    ! (ttbb default 5) by default in powheg, massive emitters are not subjected to damping, this 
+                    !     introduces damping for massive emitters lighter than hdampMassTh (focusing in particular on
+                    !     bottom quarks)
+#bornzerodampcut 2  ! (powheg defaul 5, ttbb default 2) points in which the real matrix element is larger than 
+                    !     bornzerodampcut x [its collinear approximation] are considered as remnant
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! physics constants 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Physics constants
+#tmass 172.5d0        ! (ttbb default 172.5)
+#bmass 4.75d0         ! (ttbb default 4.75) bottom quark mass, setting it to zero introduces a singularity in the 
+                      !     born matrix element, make sure to adjust hdampMassTh correspondingly if using value larger
+                      !     than 5.0
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! other settings
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+clobberlhe 1         ! 1 ... delete the event file if it exists, 0 ... exit if it exists
+olverbose 1          ! set the OpenLoops verbosity level (see OL manual)
+alphas_from_lhapdf 1 ! (powheg default 0, ttbb recommended 1) use the LHAPDF routine for alphaS running instead of the 
+                     !      powheg internal routine (everywhere, except for in the Sudakov form factor)
+
+for_reweighting 0    ! (powheg default 0, ttbb recommended 0) 1 ... calculate with virtual corrections switched off 
+                     !      throughout and then reweight with virtual corrections switched on (useful for when virtual
+                     !      corrections are costly to calculate). Note that the events will have two weights, the first
+                     !      an intermediate weight (not to be used), and the second one including all the contributions
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! scale and PDF reweighting
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+rwl_file 'pwg-rwl.dat'          ! If set to '-' read the xml reweighting info from this same file. Otherwise, it specifies the xml
+                      ! file with weight information
+#<initrwgt>
+#<weight id='1'>default</weight>  ! Default weight, necessary when using for_reweighting 1, in order to save the weight 
+                                 ! including the virtual corrections
+#<weight id='2' > renscfact=2d0 facscfact=2d0 </weight>     ! part of 7pt scale variations
+#<weight id='3' > renscfact=0.5d0 facscfact=0.5d0 </weight> ! part of 7pt scale variations
+#<weight id='4' > renscfact=1d0 facscfact=2d0 </weight>     ! part of 7pt scale variations
+#<weight id='5' > renscfact=1d0 facscfact=0.5d0 </weight>   ! part of 7pt scale variations
+#<weight id='6' > renscfact=2d0 facscfact=1d0 </weight>     ! part of 7pt scale variations
+#<weight id='7' > renscfact=0.5d0 facscfact=1d0 </weight>   ! part of 7pt scale variations
+#</initrwgt>
+rwl_group_events 1000 ! (powheg default 1000) it keeps 1000 events in memory, reprocessing them together for
+                      ! reweighting (see README.Compress-And-Weights)
+
+manyseeds 1
