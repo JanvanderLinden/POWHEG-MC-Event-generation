@@ -300,51 +300,18 @@ If the validation was successful, you can now proceed to the LHE production.
 For this stage, make sure that you have initialized the working directory with the appropriate generator settings (mur,muf,mass,pdf).
 
 Then, proceed to copy all the grid files for the LHE run to the run directory `run__[NAME]__r[MUR]_f[MUF]_m[MASS]_p[PDF]` that has been created inside the `POWHEG-BOX-RES/ttbb/`. 
-Availiable grids:
-- muR=1.0, muF=1.0:
+Availiable grids for Run 3:
+- muR=1.0, muF=2.0 (our nominal choice for Run 3 to be synced with ATLAS):
 ```
-cp /afs/cern.ch/work/v/vanderli/public/ttbb-lhe-inputs/grids_nominal/muR1.0_muF1.0/*
-```
-- muR=1.0, muF=2.0:
-```
-cp /afs/cern.ch/work/v/vanderli/public/ttbb-lhe-inputs/grids_nominal/muR1.0_muF2.0_v2/*
-```
-- muR=1.0, muF=1.0 for hdampUp:
-```
-cp /afs/cern.ch/user/n/nplastir/public/grids_hdampUP/muR1.0_muF1.0/*
-```
-or
-```
-cp /afs/cern.ch/work/v/vanderli/public/ttbb-lhe-inputs/grids_hdampUP/muR1.0_muF1.0/*
-```
-- muR=1.0, muF=2.0 for hdampUp:
-```
-cp /afs/cern.ch/user/n/nplastir/public/grids_hdampUP/muR1.0_muF2.0/*
-```
-- muR=1.0, muF=1.0 for hdampDOWN:
-```
-cp /afs/cern.ch/user/n/nplastir/public/grids_hdampDOWN/muR1.0_muF1.0/*
-```
-or
-```
-cp /afs/cern.ch/work/v/vanderli/public/ttbb-lhe-inputs/grids_hdampDOWN/muR1.0_muF1.0/*
-```
-- muR=1.0, muF=2.0 for hdampDOWN:
-```
-cp /afs/cern.ch/user/n/nplastir/public/grids_hdampDOWN/muR1.0_muF2.0/*
+/afs/cern.ch/work/v/vanderli/public/ttbb-lhe-inputs/Run3_powheg/grids_nominal/muR1.0_muF2.0/* 
 ```
 
-(e.g. `cp /afs/cern.ch/work/v/vanderli/public/ttbb-lhe-inputs/grids_nominal/muR1.0_muF2.0/* $base/POWHEG-BOX-RES/ttbb/run__test__r1.0_f1.0_m172.5_p320900`).
+(e.g. `cp /afs/cern.ch/work/v/vanderli/public/ttbb-lhe-inputs/Run3_powheg/grids_nominal/muR1.0_muF2.0/* $base/POWHEG-BOX/ttbb/run__test__r1.0_f2.0_m172.5_p325500/`).
 
 After everything has been copied inside the run directory, the jobs for the LHE production can be submitted via 
 ```
 cd $production
 python3 ../POWHEG-MC-Event-generation/run.py -w [PATH_TO_WORKDIR] -S 4 -n [NBATCHES] -N [NEVENTSPERJOB] --decay [DECAYCHANNEL] -f
-```
-**NOTE: Because we are running everything inside the Singularity environment, the automatic job submission to condor is not possible. Therefore, in an another lxplus9 node, go to the newly generated folder and submit the jobs manually. E.g.**
-```
-cd $production/test__r1.0_f1.0_m172.5_p320900/submit/
-condor_submit stage4.sub
 ```
 
 You have to append the option `-f` to force the submission of batch jobs as otherwise this is blocked as parallel stages 1-3 were skipped.
@@ -358,7 +325,13 @@ This option is mandatory and has to be specified. The options are:
 **Example:**
 ```
 cd $production
-python3 ../POWHEG-MC-Event-generation/run.py -w ./test__r1.0_f1.0_m172.5_p320900 -S 4 -n 1000 -N 1000 --decay 2L -f
+python3 ../POWHEG-MC-Event-generation/run.py -w ./test__r1.0_f2.0_m172.5_p325500 -S 4 -n 500 -N 1000 --decay 2L -f
+```
+
+**NOTE: Because we are running everything inside the Singularity environment, the automatic job submission to condor is not possible. Therefore, in an another lxplus9 node, go to the newly generated folder and submit the jobs manually. E.g.**
+```
+cd $production/test__r1.0_f2.0_m172.5_p325500/submit/
+condor_submit stage4.sub
 ```
 
 # Postprocess
@@ -375,10 +348,10 @@ mv run__[NAME]__r[MUR]_f[MUF]_m[MASS]_p[PDF] /eos/user/<initial>/<username>/.../
 e.g.
 ```
 cd $production
-mv test__r1.0_f1.0_m172.5_p320900 /eos/user/n/nplastir/ttH/MCProduction/production_test/
+mv test__r1.0_f2.0_m172.5_p325500 /eos/user/n/nplastir/ttH/MCProduction/production_test/
 
 cd $base/POWHEG-BOX-RES/ttbb
-mv run__test__r1.0_f1.0_m172.5_p320900 /eos/user/n/nplastir/ttH/MCProduction/POWHEG-BOX-RES/ttbb/
+mv run__test__r1.0_f2.0_m172.5_p325500 /eos/user/n/nplastir/ttH/MCProduction/POWHEG-BOX/ttbb/
 ```
 After everything has been moved, we can proceed with the merging 
 
